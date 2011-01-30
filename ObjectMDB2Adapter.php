@@ -1,6 +1,6 @@
 <?php 
 
-require_once 'juds/objects/ObjectAdapter.php';
+require_once dirname(__FILE__).'/ObjectAdapter.php';
 
 class ObjectMDB2Adapter extends ObjectAdapter
 {

@@ -1,7 +1,7 @@
 <?php
 
-require_once 'juds/exceptions/DatabaseException.php';
-require_once 'juds/objects/IObject.php';
+require_once dirname(__FILE__).'/DatabaseException.php';
+require_once dirname(__FILE__).'/IObject.php';
 
 abstract class Object implements IObject
 {
@@ -31,7 +31,7 @@ abstract class Object implements IObject
         }
         
         $className = 'Object'.$libName.'Adapter';
-        $path = 'juds/objects/'.$className.'.php';
+        $path = dirname(__FILE__).'/'.$className.'.php'; 
         
         if(!include_once($path)) {
             throw new SystemException(_('Object Adapter not installed'));
@@ -41,12 +41,46 @@ abstract class Object implements IObject
         
         return $instance;
     } // end factory
+   
     
 	public function __construct(&$adapter) 
     {
         $this->adapter = $adapter;
     }
 	
+    /**
+     * Returns objects instance by name
+     * 
+     * @param string $name
+     * @return Object
+     */
+    public static function getInstance($name, $db, $path = false)
+    {
+       $adapter = self::factory($db);
+        
+       $className = $name.'Object';
+       
+       // default path to objects
+        if ( !$path ) {
+            $path = realpath(dirname(__FILE__).'/../../objects/').'/';
+        }
+       
+        $classFile = $path.$className.'.php';
+                          
+        if ( !file_exists($classFile) ) {
+            throw new SystemException(sprintf(_('File "%s" for object "%s" was not found.'), $classFile, $name));
+        }
+            
+        require_once $classFile;
+        if ( !class_exists($className) ) {
+            throw new SystemException(sprintf(_('Class "%s" was not found in file "%s".'), $className, $classFile));
+        }
+            
+        $obj = new $className($adapter);
+       
+        return $obj;
+    } // end get
+    
 	public function quote($obj, $type = null)
 	{
 		return $this->adapter->quote($obj, $type);
@@ -120,6 +154,68 @@ abstract class Object implements IObject
     {
         return $this->adapter->getUpdateSQL($table, $values, $condition);
     }
+    
+    /**
+     * Returns sql query without where. The method should be overridden
+     * 
+     * @throws SystemException
+     */
+    protected function getSql()
+    {
+        throw new SystemException('Undefined method getSql', 2001);
+    } // end getSql
+    
+    /**
+     * Returns generate select sql query
+     *
+     * @param array $condition
+     * @param string $selectSql
+     * @return string
+     */
+    public function getSelectSQL($condition, $selectSql = false, $orderBy = array())
+    {
+        $selectSql = $selectSql ? $selectSql : $this->getSql();
+        
+        $sql = $selectSql.' WHERE '.join(' AND ', $this->getSqlCondition($condition));
+        
+        if ($orderBy) {
+            $sql .= " ORDER BY ".join(', ', $orderBy);
+        }
+        
+        return $sql;
+    } // end getSelectSQL
+    
+    /**
+     * Fetch rows returned from a query
+     *
+     * @param string $selectSql
+     * @param array $condition
+     * @param string $type
+     * @throws SystemException
+     * @return array
+     */
+    public function select($selectSql, $condition = array(), $orderBy = array(), $type = self::FETCH_ALL)
+    {
+        $sql = $this->getSelectSQL($condition, $selectSql, $orderBy);
+        
+        $methods = array(
+            self::FETCH_ALL   => 'getAll',
+            self::FETCH_ROW   => 'getRow',
+            self::FETCH_ASSOC => 'getAssoc',
+            self::FETCH_COL   => 'getCol',
+            self::FETCH_ONE   => 'getOne',
+        );
+        
+        if ( !isset($methods[$type]) ) {
+            throw new SystemException( sprintf(_('Undefined select type %s'), $type), 3005);
+        }
+        
+        if ( !is_callable(array($this, $methods[$type])) ) {
+            throw new SystemException(sprintf(_('Method "%s" was not found in Object.'), $methods[$type]));
+        }
+            
+        return call_user_func_array(array($this, $methods[$type]), array($sql));
+    } // end select
     
 }
 ?>

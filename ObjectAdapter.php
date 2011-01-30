@@ -1,7 +1,5 @@
 <?php 
 
-require_once 'juds/exceptions/NotDeclaredMethodException.php';
-
 /**
  * @abstract
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
@@ -17,35 +15,6 @@ abstract class ObjectAdapter implements IObject
         $this->db = $db;
     }
     
-    public function quote($obj, $type)
-	{
-		throw new NotDeclaredMethodException;
-	}
-    
-    public function getRow($sql)
-	{
-		throw new NotDeclaredMethodException;
-	}
-    
-    public function getAll($sql)
-	{
-		throw new NotDeclaredMethodException;
-	}
-    
-    public function getOne($sql)
-	{
-		throw new NotDeclaredMethodException;
-	}
-    
-	public function query($sql)
-	{
-		throw new NotDeclaredMethodException;
-	}
-	
-	protected function getInsertID()
-    {
-        throw new NotDeclaredMethodException;
-    }
 	
 	public function insert($table, $values, $is_update_dublicate = false)
 	{

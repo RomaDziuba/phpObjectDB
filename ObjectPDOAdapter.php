@@ -1,4 +1,7 @@
 <?php 
+
+require_once dirname(__FILE__).'/ObjectAdapter.php';
+
 class ObjectPDOAdapter extends ObjectAdapter
 {
     public function quote($obj, $type = null)
