@@ -7,6 +7,12 @@ abstract class Object implements IObject
 {
 	protected $adapter;
 	
+	const FETCH_ALL = 100;
+	const FETCH_ROW = 101;
+	const FETCH_ASSOC = 102;
+	const FETCH_COL = 103;
+	const FETCH_ONE = 104;
+	
 	public static function factory(&$db)
     {
         $libName = false;
@@ -100,6 +106,11 @@ abstract class Object implements IObject
 	{
 		return $this->adapter->getOne($sql);
 	}
+	
+    public function getCol($sql)
+    {
+        return $this->adapter->getCol($sql);
+    }
 	
 	public function insert($table, $values, $is_update_dublicate = false)
 	{

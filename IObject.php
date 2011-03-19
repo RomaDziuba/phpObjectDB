@@ -10,6 +10,8 @@ interface IObject
     public function getOne($sql);
     
     public function getAssoc($sql);
+    
+    public function getCol($sql);
 	
 	public function query($sql);
 	

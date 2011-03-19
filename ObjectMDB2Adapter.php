@@ -42,6 +42,18 @@ class ObjectMDB2Adapter extends ObjectAdapter
         return $result;
     }
     
+    public function getCol($sql)
+    {
+        $result = $this->db->getCol($sql);
+        
+        if(PEAR::isError($result)) {
+            throw new DatabaseException($result->userinfo, $result->code);
+        }
+
+        return $result;
+    }
+    
+    
     public function getAssoc($sql)
     {
         $result = $this->db->getAssoc($sql);
