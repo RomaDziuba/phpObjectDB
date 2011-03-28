@@ -39,6 +39,12 @@ class ObjectPDOAdapter extends ObjectAdapter
         return $result;
     }
     
+    public function getCol($sql)
+    {
+        throw new DatabaseException('Undefined method getCol');
+    }
+    
+    
     public function getOne($sql)
     {
         $query = $this->db->prepare($sql);

@@ -24,13 +24,15 @@ abstract class Object implements IObject
                 $libName = 'WPDB';
                 break;
                 
+            case 'PDO':
+                $libName = 'PDO';
+                break;
+                
             default:
                 if($parentClass == 'MDB2_Driver_Common') {
                     $libName = 'MDB2';
                 }                
         } // end switch
-        
-        
         
         if(!$libName) {
             throw new SystemException(_('Object Adapter not found'));

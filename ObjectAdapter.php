@@ -96,9 +96,13 @@ abstract class ObjectAdapter implements IObject
             
         $sql = "UPDATE ".$table." SET ".join(", ", $values);
         
-		$sqlCondition = $this->getSqlCondition($condition);
-        if($sqlCondition) {
-            $sql .= " WHERE ".join(' AND ', $sqlCondition);
+        if (is_array($condition)) {
+            $sqlCondition = $this->getSqlCondition($condition);
+            if($sqlCondition) {
+                $sql .= " WHERE ".join(' AND ', $sqlCondition);
+            }
+        } else {
+            $sql .= " WHERE ".$condition;
         }
             
         return $sql;
