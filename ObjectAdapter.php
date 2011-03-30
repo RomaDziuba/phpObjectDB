@@ -86,6 +86,12 @@ abstract class ObjectAdapter implements IObject
                 continue;
             }
             
+            if (mb_substr($key, mb_strlen($key) - 1, 1) == '+') {
+                $key = str_replace("+", "", $key);
+                $item = $key." = ".$key." + ".$this->quote($item);
+                continue;
+            }
+            
             if(!in_array($item, array('NOW()', 'NULL'))) {
                 $item = $key." = ".$this->quote($item);
             } else {
