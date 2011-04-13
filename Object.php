@@ -24,13 +24,15 @@ abstract class Object implements IObject
                 $libName = 'WPDB';
                 break;
                 
+            case 'PDO':
+                $libName = 'PDO';
+                break;
+                
             default:
                 if($parentClass == 'MDB2_Driver_Common') {
                     $libName = 'MDB2';
                 }                
         } // end switch
-        
-        
         
         if (!$libName) {
             throw new SystemException(_('Object Adapter not found'));
@@ -171,12 +173,12 @@ abstract class Object implements IObject
          return $this->adapter->getSqlCondition($obj);
     } // end getSqlCondition
 	
-    protected function getInsertSQL($table, $values, $is_update_dublicate = false) 
+    public function getInsertSQL($table, $values, $is_update_dublicate = false) 
     {
         return $this->adapter->getInsertSQL($table, $values, $is_update_dublicate);
     }
     
-    protected function getUpdateSQL($table, $values, $condition = array()) 
+    public function getUpdateSQL($table, $values, $condition = array()) 
     {
         return $this->adapter->getUpdateSQL($table, $values, $condition);
     }
