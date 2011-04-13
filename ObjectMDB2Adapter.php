@@ -80,7 +80,26 @@ class ObjectMDB2Adapter extends ObjectAdapter
     {
         return $this->getOne("SELECT LAST_INSERT_ID()");
     }
+
+    public function begin($isolationLevel = false)
+    {
+        // TODO: Savepoint
+        if ($this->db->inTransaction()) {
+            $this->commit();
+        }
+        
+        $this->db->beginTransaction();
+    }
     
+    public function commit()
+    {
+        $this->db->commit();
+    }
+    
+    public function rollback()
+    {
+        $this->db->rollback();
+    }
    
 }
 ?>

@@ -54,7 +54,27 @@ class ObjectPDOAdapter extends ObjectAdapter
     
     public function getAssoc($sql)
     {
+        throw new DatabaseException('Undefined method getAssoc');
+    }
+    
+    public function begin($isolationLevel = false)
+    {
+        // TODO: Savepoint
+        if ($this->db->inTransaction()) {
+            $this->commit();
+        }
         
+        $this->db->beginTransaction();
+    }
+    
+    public function commit()
+    {
+        $this->db->commit();
+    }
+    
+    public function rollback()
+    {
+        $this->db->rollBack();
     }
     
     public function query($sql)

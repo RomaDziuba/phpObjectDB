@@ -32,7 +32,7 @@ abstract class Object implements IObject
         
         
         
-        if(!$libName) {
+        if (!$libName) {
             throw new SystemException(_('Object Adapter not found'));
         }
         
@@ -68,7 +68,7 @@ abstract class Object implements IObject
        
        // default path to objects
         if ( !$path ) {
-            $path = realpath(dirname(__FILE__).'/../../objects/').'/';
+            $path = realpath(dirname(__FILE__).'/../../../objects/').'/';
         }
        
         $classFile = $path.$className.'.php';
@@ -131,6 +131,21 @@ abstract class Object implements IObject
 	{
 	    return $this->adapter->getAssoc($sql);
 	}
+    
+    public function begin($isolationLevel = false)
+    {
+        return $this->adapter->begin($isolationLevel);
+    }
+    
+    public function commit()
+    {
+        return $this->adapter->commit();
+    }
+    
+    public function rollback()
+    {
+        return $this->adapter->rollback();
+    }
 	
 	public function getAllSplit($query, $col, $page)
     {
@@ -227,6 +242,9 @@ abstract class Object implements IObject
             
         return call_user_func_array(array($this, $methods[$type]), array($sql));
     } // end select
+    
+    
+    
     
 }
 ?>

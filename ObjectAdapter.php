@@ -10,11 +10,12 @@ abstract class ObjectAdapter implements IObject
 {
     protected $db;
     
+    protected $reservedWords = array('NOW()', 'NULL', 'CURRENT_DATE()');
+    
     public function __construct(&$db) 
     {
         $this->db = $db;
     }
-    
 	
 	public function insert($table, $values, $is_update_dublicate = false)
 	{
@@ -40,15 +41,15 @@ abstract class ObjectAdapter implements IObject
      * @param boolean $is_update_dublicate
      * @return string SQL string
      */
-    public function getInsertSQL($table, $values, $is_update_dublicate = false) 
+    public function getInsertSQL($table, $values, $isUpdateDublicate = false) 
     {
         foreach ($values as &$item) {
-            if(is_null($item)) {
+            if (is_null($item)) {
                 $item = 'NULL';
                 continue;
             }
             
-            if(!in_array($item, array('NOW()', 'NULL'))) {
+            if (!$this->reservedWords || !in_array($item, $this->reservedWords)) {
                 $item = $this->quote($item);
             }
         }
@@ -56,7 +57,7 @@ abstract class ObjectAdapter implements IObject
             
         $sql = "INSERT INTO ".$table." (".join(", ", array_keys($values)).") VALUES (".join(", ", $values).")";
             
-        if($is_update_dublicate) {
+        if ($isUpdateDublicate) {
             $sql .= " ON duplicate KEY UPDATE ";
             $rows = array();
             foreach ($values as $field => $value) {
@@ -81,12 +82,19 @@ abstract class ObjectAdapter implements IObject
     {
         foreach ($values as $key => &$item) {
             
-            if(is_null($item)) {
+            if (is_null($item)) {
                 $item = $key." = NULL";
                 continue;
             }
             
-            if(!in_array($item, array('NOW()', 'NULL'))) {
+            $lastSymbol = mb_substr($key, mb_strlen($key) - 1, 1);
+            if (in_array($lastSymbol, array('+', '-'))) {
+                $key = str_replace($lastSymbol, "", $key);
+                $item = $key." = ".$key." ".$lastSymbol." ".$this->quote($item);
+                continue;
+            }
+            
+            if (!$this->reservedWords || !in_array($item, $this->reservedWords)) {
                 $item = $key." = ".$this->quote($item);
             } else {
                 $item = $key." = ".$item;
@@ -96,9 +104,13 @@ abstract class ObjectAdapter implements IObject
             
         $sql = "UPDATE ".$table." SET ".join(", ", $values);
         
-		$sqlCondition = $this->getSqlCondition($condition);
-        if($sqlCondition) {
-            $sql .= " WHERE ".join(' AND ', $sqlCondition);
+        if (is_array($condition)) {
+            $sqlCondition = $this->getSqlCondition($condition);
+            if($sqlCondition) {
+                $sql .= " WHERE ".join(' AND ', $sqlCondition);
+            }
+        } else {
+            $sql .= " WHERE ".$condition;
         }
             
         return $sql;
@@ -108,11 +120,11 @@ abstract class ObjectAdapter implements IObject
     {
         $result = $is_default ? array('TRUE') : array();
         
-        foreach($obj as $key => $item) {
+        foreach ($obj as $key => $item) {
             $buffer = explode("&", $key);
             $action = !empty($buffer[1]) ? $buffer[1] : "=";
             
-            if(in_array($action, array('IN', 'NOT IN'))) {
+            if (in_array($action, array('IN', 'NOT IN'))) {
                 $values = array();
                 
                 foreach($item as $val) {
@@ -125,7 +137,7 @@ abstract class ObjectAdapter implements IObject
 				continue; 
             }
             
-            if(strtolower($action) == 'or') {
+            if (strtolower($action) == 'or') {
                 
                 list($value, $others) = $item;
                 
@@ -141,7 +153,7 @@ abstract class ObjectAdapter implements IObject
                 continue;
             }
             
-            if(!in_array($item, array('NOW()', 'NULL'))) {
+            if (!in_array($item, $this->reservedWords)) {
                 $result[] = $buffer[0]." ".$action." ".$this->quote($item); 
             } else {
                 $result[] = $buffer[0]." ".$action." ".$item;

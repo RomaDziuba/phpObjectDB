@@ -53,7 +53,22 @@ class ObjectWPDBAdapter extends ObjectAdapter
     
     public function getAssoc($sql)
     {
-        
+        throw new DatabaseException('Undefined method getAssoc');
+    }
+    
+    public function begin($isolationLevel = false)
+    {
+        throw new DatabaseException('Undefined method begin');
+    }
+    
+    public function commit()
+    {
+        throw new DatabaseException('Undefined method commit');
+    }
+    
+    public function rollback()
+    {
+        throw new DatabaseException('Undefined method rollback');
     }
     
     
@@ -61,7 +76,5 @@ class ObjectWPDBAdapter extends ObjectAdapter
     {
         return $this->getOne("SELECT LAST_INSERT_ID()");
     }
-    
-   
 }
 ?>

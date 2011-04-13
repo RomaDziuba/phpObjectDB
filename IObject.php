@@ -18,5 +18,11 @@ interface IObject
 	public function insert($table, $values, $is_update_dublicate);
 	
 	public function update($table, $values, $condition);
+    
+    public function begin($isolationLevel);
+    
+    public function commit();
+    
+    public function rollback();
 }
 ?>
