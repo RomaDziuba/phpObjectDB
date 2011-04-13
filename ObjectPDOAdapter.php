@@ -2,6 +2,12 @@
 
 require_once dirname(__FILE__).'/ObjectAdapter.php';
 
+/**
+ * Adapter for PDO
+ *
+ * @package    phpObjectDB
+ * @author     Denis Panaskin <goliathdp@gmail.com>
+ */
 class ObjectPDOAdapter extends ObjectAdapter
 {
     public function quote($obj, $type = null)

@@ -16,24 +16,24 @@ abstract class ObjectAdapter implements IObject
     {
         $this->db = $db;
     }
-	
-	public function insert($table, $values, $is_update_dublicate = false)
-	{
-		$sql = $this->getInsertSQL($table, $values, $is_update_dublicate);
-		
-		$this->query($sql);
-		
-		return $this->getInsertID();
-	}
-	
-	public function update($table, $values, $condition = array())
-	{
-		$sql = $this->getUpdateSQL($table, $values, $condition);
-		
-		return $this->query($sql);
-	}
-	
-	/**
+    
+    public function insert($table, $values, $is_update_dublicate = false)
+    {
+        $sql = $this->getInsertSQL($table, $values, $is_update_dublicate);
+        
+        $this->query($sql);
+        
+        return $this->getInsertID();
+    }
+    
+    public function update($table, $values, $condition = array())
+    {
+        $sql = $this->getUpdateSQL($table, $values, $condition);
+        
+        return $this->query($sql);
+    }
+    
+    /**
      * Returns the generated SQL query to insert data
      * 
      * @param string $table
@@ -131,10 +131,10 @@ abstract class ObjectAdapter implements IObject
                     $values[] = $this->quote($val);
                 }
                 
-				if($values) {
-					$result[] = $buffer[0]." ".$action." (".join(', ', $values).')';
+                if($values) {
+                    $result[] = $buffer[0]." ".$action." (".join(', ', $values).')';
                 }
-				continue; 
+                continue; 
             }
             
             if (strtolower($action) == 'or') {

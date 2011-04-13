@@ -2,6 +2,12 @@
 
 require_once dirname(__FILE__).'/ObjectAdapter.php';
 
+/**
+ * Adapter for WordpressDB 
+ *
+ * @package    phpObjectDB
+ * @author     Denis Panaskin <goliathdp@gmail.com>
+ */
 class ObjectWPDBAdapter extends ObjectAdapter
 {
     public function quote($obj, $type = null)

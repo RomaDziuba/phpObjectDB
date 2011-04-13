@@ -2,6 +2,12 @@
 
 require_once dirname(__FILE__).'/ObjectAdapter.php';
 
+/**
+ * Adapter for PEAR::MDB2
+ *
+ * @package    phpObjectDB
+ * @author     Denis Panaskin <goliathdp@gmail.com>
+ */
 class ObjectMDB2Adapter extends ObjectAdapter
 {
     public function quote($obj, $type = null)
@@ -76,7 +82,7 @@ class ObjectMDB2Adapter extends ObjectAdapter
         return $result;
     }
     
-	protected function getInsertID()
+    protected function getInsertID()
     {
         return $this->getOne("SELECT LAST_INSERT_ID()");
     }

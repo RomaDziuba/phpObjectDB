@@ -5,15 +5,15 @@ require_once dirname(__FILE__).'/IObject.php';
 
 abstract class Object implements IObject
 {
-	protected $adapter;
-	
-	const FETCH_ALL = 100;
-	const FETCH_ROW = 101;
-	const FETCH_ASSOC = 102;
-	const FETCH_COL = 103;
-	const FETCH_ONE = 104;
-	
-	public static function factory(&$db)
+    protected $adapter;
+    
+    const FETCH_ALL = 100;
+    const FETCH_ROW = 101;
+    const FETCH_ASSOC = 102;
+    const FETCH_COL = 103;
+    const FETCH_ONE = 104;
+    
+    public static function factory(&$db)
     {
         $libName = false;
         $parentClass = get_parent_class($db);
@@ -51,11 +51,11 @@ abstract class Object implements IObject
     } // end factory
    
     
-	public function __construct(&$adapter) 
+    public function __construct(&$adapter) 
     {
         $this->adapter = $adapter;
     }
-	
+    
     /**
      * Returns objects instance by name
      * 
@@ -64,11 +64,11 @@ abstract class Object implements IObject
      */
     public static function getInstance($name, $db, $path = false)
     {
-       $adapter = self::factory($db);
+        $adapter = self::factory($db);
         
-       $className = $name.'Object';
+        $className = $name.'Object';
        
-       // default path to objects
+        // default path to objects
         if ( !$path ) {
             $path = realpath(dirname(__FILE__).'/../../../objects/').'/';
         }
@@ -89,50 +89,50 @@ abstract class Object implements IObject
         return $obj;
     } // end get
     
-	public function quote($obj, $type = null)
-	{
-		return $this->adapter->quote($obj, $type);
-	}
+    public function quote($obj, $type = null)
+    {
+        return $this->adapter->quote($obj, $type);
+    }
     
     public function getRow($sql)
-	{
-		return $this->adapter->getRow($sql);
-	}
+    {
+        return $this->adapter->getRow($sql);
+    }
     
     public function getAll($sql)
-	{
-		return $this->adapter->getAll($sql);
-	}
+    {
+        return $this->adapter->getAll($sql);
+    }
     
     public function getOne($sql)
-	{
-		return $this->adapter->getOne($sql);
-	}
-	
+    {
+        return $this->adapter->getOne($sql);
+    }
+    
     public function getCol($sql)
     {
         return $this->adapter->getCol($sql);
     }
-	
-	public function insert($table, $values, $is_update_dublicate = false)
-	{
-		return $this->adapter->insert($table, $values, $is_update_dublicate);
-	}
-	
-	public function update($table, $values, $condition = array())
-	{
-		return $this->adapter->update($table, $values, $condition);
-	}
-	
-	public function query($sql)
-	{
-		return $this->adapter->query($sql);
-	}
-	
-	public function getAssoc($sql)
-	{
-	    return $this->adapter->getAssoc($sql);
-	}
+    
+    public function insert($table, $values, $is_update_dublicate = false)
+    {
+        return $this->adapter->insert($table, $values, $is_update_dublicate);
+    }
+    
+    public function update($table, $values, $condition = array())
+    {
+        return $this->adapter->update($table, $values, $condition);
+    }
+    
+    public function query($sql)
+    {
+        return $this->adapter->query($sql);
+    }
+    
+    public function getAssoc($sql)
+    {
+        return $this->adapter->getAssoc($sql);
+    }
     
     public function begin($isolationLevel = false)
     {
@@ -148,8 +148,8 @@ abstract class Object implements IObject
     {
         return $this->adapter->rollback();
     }
-	
-	public function getAllSplit($query, $col, $page)
+    
+    public function getAllSplit($query, $col, $page)
     {
         $result = array();
         $page -= 1;
@@ -167,12 +167,12 @@ abstract class Object implements IObject
         
         return $result; 
     }// end getAllSplit
-	
+    
     public function getSqlCondition($obj = array()) 
     {
          return $this->adapter->getSqlCondition($obj);
     } // end getSqlCondition
-	
+    
     public function getInsertSQL($table, $values, $is_update_dublicate = false) 
     {
         return $this->adapter->getInsertSQL($table, $values, $is_update_dublicate);
