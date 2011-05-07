@@ -19,6 +19,10 @@ abstract class Object implements IObject
         $parentClass = get_parent_class($db);
         $currentClass = get_class($db);
         
+        if ( $parentClass == 'ObjectAdapter') {
+            return $db;
+        }
+        
         switch($currentClass) {
             case 'wpdb':
                 $libName = 'WPDB';
