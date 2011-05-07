@@ -72,9 +72,9 @@ class ObjectPDOAdapter extends ObjectAdapter
     public function begin($isolationLevel = false)
     {
         // TODO: Savepoint
-        if ($this->db->inTransaction()) {
-            $this->commit();
-        }
+        //if ($this->db->inTransaction()) {
+        //    $this->commit();
+        //}
         
         $this->db->beginTransaction();
     }
