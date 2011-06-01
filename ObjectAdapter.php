@@ -10,12 +10,31 @@ abstract class ObjectAdapter implements IObject
 {
     protected $db;
     
+    private static $_instances;
+    
     protected $reservedWords = array('NOW()', 'NULL', 'CURRENT_DATE()');
     
     public function __construct(&$db) 
     {
         $this->db = $db;
     }
+    
+    /**
+     * Returns objects instance by name
+     * 
+     * @param string $name
+     * @return Object
+     */
+    public function &get($name, $path = false)
+    {
+        if (isset(self::$_instances[$name])) {
+            return self::$_instances[$name];
+        }
+        
+        self::$_instances[$name] = Object::getInstance($name, $this->db, $path);
+       
+        return self::$_instances[$name];
+    } // end get
     
     public function insert($table, $values, $is_update_dublicate = false)
     {

@@ -74,7 +74,7 @@ abstract class Object implements IObject
        
         // default path to objects
         if ( !$path ) {
-            $path = realpath(dirname(__FILE__).'/../../../objects/').'/';
+            $path = realpath(dirname(__FILE__).'/../../objects/').'/';
         }
        
         $classFile = $path.$className.'.php';
