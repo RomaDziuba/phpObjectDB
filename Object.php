@@ -5,13 +5,15 @@ require_once dirname(__FILE__).'/IObject.php';
 
 abstract class Object implements IObject
 {
-    protected $adapter;
-    
     const FETCH_ALL = 100;
     const FETCH_ROW = 101;
     const FETCH_ASSOC = 102;
     const FETCH_COL = 103;
     const FETCH_ONE = 104;
+    
+    private static $_instances;
+    
+    protected $adapter;
     
     public static function factory(&$db)
     {
@@ -66,8 +68,12 @@ abstract class Object implements IObject
      * @param string $name
      * @return Object
      */
-    public static function getInstance($name, $db, $path = false)
+    public static function &getInstance($name, $db, $path = false)
     {
+        if (isset(self::$_instances[$name])) {
+            return self::$_instances[$name];
+        }
+        
         $adapter = self::factory($db);
         
         $className = $name.'Object';
@@ -87,10 +93,10 @@ abstract class Object implements IObject
         if ( !class_exists($className) ) {
             throw new SystemException(sprintf(_('Class "%s" was not found in file "%s".'), $className, $classFile));
         }
-            
-        $obj = new $className($adapter);
+        
+        self::$_instances[$name] = new $className($adapter);
        
-        return $obj;
+        return self::$_instances[$name];
     } // end get
     
     public function quote($obj, $type = null)
