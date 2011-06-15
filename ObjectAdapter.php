@@ -156,6 +156,11 @@ abstract class ObjectAdapter implements IObject
                 continue; 
             }
             
+            if(strtolower($action) == 'or_sql') {
+                $result[] = '('.join(' OR ', $item).')';
+                continue;
+            }
+            
             if (strtolower($action) == 'or') {
                 
                 list($value, $others) = $item;
