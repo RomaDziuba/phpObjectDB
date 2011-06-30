@@ -12,7 +12,16 @@ abstract class ObjectAdapter implements IObject
     
     private static $_instances;
     
-    protected $reservedWords = array('NOW()', 'NULL', 'CURRENT_DATE()');
+    protected $reservedWords = array(
+    	'NOW()', 
+        'NOT NULL', 
+        'NULL', 
+        'CURRENT_DATE()', 
+        'CURRENT_TIME()',
+        'CURRENT_DATE',
+        'CURRENT_TIME',
+        'NOW'
+    );
     
     public function __construct(&$db) 
     {
@@ -45,6 +54,52 @@ abstract class ObjectAdapter implements IObject
         return $this->getInsertID();
     }
     
+    /**
+     * Generate an mass insert
+     * 
+     * @param string $table
+     * @param mixed $values
+     * @throws DatabaseException
+     * @return mixed
+     */
+    public function massInsert($table, $values)
+    {
+        $rows = array();
+        foreach ($values as $items) {
+            $data = $this->getInsertValues($items);
+            $rows[] = '('.join(', ', $data).')';
+        }
+       
+        $sql = "INSERT INTO ".$table." (".join(", ", array_keys($values[0])).") VALUES ".join(', ', $rows);
+        
+        return $this->query($sql);
+    } // end massInsert
+    
+    /**
+     * Returns quoted values for insert sql
+     *
+     * @param array $values
+     * @see Object::getInsertSQL()
+     * @see Object::massInsert()
+     * @return array
+     */
+    private function getInsertValues($values)
+    {
+        foreach ($values as &$item) {
+            if ( is_null($item) ) {
+                $item = 'NULL';
+                continue;
+            }
+            
+            if ( !in_array($item, $this->reservedWords) ) {
+                $item = $this->quote($item);
+            }
+        }
+        unset($item);
+        
+        return $values;
+    } // end getInsertValues
+    
     public function update($table, $values, $condition = array())
     {
         $sql = $this->getUpdateSQL($table, $values, $condition);
@@ -62,17 +117,7 @@ abstract class ObjectAdapter implements IObject
      */
     public function getInsertSQL($table, $values, $isUpdateDublicate = false) 
     {
-        foreach ($values as &$item) {
-            if (is_null($item)) {
-                $item = 'NULL';
-                continue;
-            }
-            
-            if (!$this->reservedWords || !in_array($item, $this->reservedWords)) {
-                $item = $this->quote($item);
-            }
-        }
-        unset($item);
+        $values = $this->getInsertValues($values);
             
         $sql = "INSERT INTO ".$table." (".join(", ", array_keys($values)).") VALUES (".join(", ", $values).")";
             

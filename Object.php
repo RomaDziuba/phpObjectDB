@@ -193,6 +193,12 @@ abstract class Object implements IObject
         return $this->adapter->getUpdateSQL($table, $values, $condition);
     }
     
+    public function massInsert($table, $values) 
+    {
+        return $this->adapter->massInsert($table, $values);
+    }
+    
+    
     /**
      * Returns sql query without where. The method should be overridden
      * 

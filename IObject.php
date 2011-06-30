@@ -24,5 +24,7 @@ interface IObject
     public function commit();
     
     public function rollback();
+    
+    public function massInsert($table, $values);
 }
 ?>
