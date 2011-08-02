@@ -19,6 +19,8 @@ interface IObject
     
     public function update($table, $values, $condition);
     
+    public function delete($table, $condition);
+    
     public function begin($isolationLevel);
     
     public function commit();

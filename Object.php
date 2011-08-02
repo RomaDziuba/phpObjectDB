@@ -136,6 +136,11 @@ abstract class Object implements IObject
         return $this->adapter->insert($table, $values, $is_update_dublicate);
     }
     
+    public function delete($table, $condition)
+    {
+        return $this->adapter->delete($table, $condition);
+    }
+    
     public function update($table, $values, $condition = array())
     {
         return $this->adapter->update($table, $values, $condition);

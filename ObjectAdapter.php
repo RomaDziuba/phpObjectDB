@@ -54,6 +54,15 @@ abstract class ObjectAdapter implements IObject
         return $this->getInsertID();
     }
     
+    public function delete($table, $condition)
+    {
+        $where = $this->getSqlCondition($condition);
+        
+        $sql = "DELETE FROM ".$table." WHERE ".join(" AND ", $where);
+            
+        return $this->query($sql);
+    }
+    
     /**
      * Generate an mass insert
      * 
