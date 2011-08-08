@@ -199,7 +199,10 @@ abstract class ObjectAdapter implements IObject
             
             if (in_array($action, array('IN', 'NOT IN'))) {
                 $values = array();
-                
+                if (!$item) {
+                    continue;
+                }
+                $item = is_scalar($item) ? array($item) : $item;                
                 foreach($item as $val) {
                     $values[] = $this->quote($val);
                 }
@@ -214,6 +217,37 @@ abstract class ObjectAdapter implements IObject
                 $result[] = '('.join(' OR ', $item).')';
                 continue;
             }
+            
+            if ($key == 'sql_or') {
+                
+                $search = array();
+                foreach ($item as $row) {
+                    if (is_scalar($row)) {
+                        $search[] = $row;
+                    } else {
+                        $search[] = join(' AND ', $this->getSqlCondition($row, false));
+                    }
+                }
+                
+                $result[] = '(('.join(' ) OR (', $search).'))';
+                continue;
+            }
+            
+            if ($key == 'sql_and') {
+                
+                $search = array();
+                foreach ($item as $row) {
+                    if (is_scalar($row)) {
+                        $search[] = $row;
+                    } else {
+                        $search[] = join(' AND ', $this->getSqlCondition($row, false));
+                    }
+                }
+                
+                $result[] = join(' AND ', $search);
+                continue;
+            }
+            
             
             if (strtolower($action) == 'or') {
                 
