@@ -273,6 +273,30 @@ abstract class Object implements IObject
         return call_user_func_array(array($this, $methods[$type]), array($sql));
     } // end select
     
+    /**
+     * Returns an array of filter fields
+     * 
+     * @param $search
+     * @return array
+     */
+    public function getConditionFields($search)
+    {
+        $fields = array();
+        
+        foreach ($search as $key => $item) {
+            $buffer = explode("&", $key);
+            
+            $info = explode('.', $buffer[0]);
+            
+            if (!isset($info[1])) {
+                continue;
+            }
+            
+            $fields[$info[0]][$info[1]] = $buffer[0]; 
+        }
+        
+        return $fields;
+    } // end getConditionFields
     
     
     
