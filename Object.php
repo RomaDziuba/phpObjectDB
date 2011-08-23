@@ -190,6 +190,20 @@ abstract class Object implements IObject
         return $result; 
     }// end getAllSplit
     
+    public function searchByPage($sql, $condition, $ordeBy, $col, $page)
+    {
+        $where = $this->getSqlCondition($condition);
+        
+        $sql .= " WHERE ".join(" AND ", $where); 
+        
+        if ($ordeBy) {
+            $sql .= " ORDER BY ".join(", ", $ordeBy);
+        }
+        
+        return $this->getAllSplit($sql, $col, $page);
+    }
+    
+    
     public function getSqlCondition($obj = array()) 
     {
          return $this->adapter->getSqlCondition($obj);
