@@ -190,6 +190,20 @@ abstract class Object implements IObject
         return $result; 
     }// end getAllSplit
     
+    public function searchByPage($sql, $condition, $ordeBy, $col, $page)
+    {
+        $where = $this->getSqlCondition($condition);
+        
+        $sql .= " WHERE ".join(" AND ", $where); 
+        
+        if ($ordeBy) {
+            $sql .= " ORDER BY ".join(", ", $ordeBy);
+        }
+        
+        return $this->getAllSplit($sql, $col, $page);
+    }
+    
+    
     public function getSqlCondition($obj = array()) 
     {
          return $this->adapter->getSqlCondition($obj);
@@ -273,6 +287,30 @@ abstract class Object implements IObject
         return call_user_func_array(array($this, $methods[$type]), array($sql));
     } // end select
     
+    /**
+     * Returns an array of filter fields
+     * 
+     * @param $search
+     * @return array
+     */
+    public function getConditionFields($search)
+    {
+        $fields = array();
+        
+        foreach ($search as $key => $item) {
+            $buffer = explode("&", $key);
+            
+            $info = explode('.', $buffer[0]);
+            
+            if (!isset($info[1])) {
+                continue;
+            }
+            
+            $fields[$info[0]][$info[1]] = $buffer[0]; 
+        }
+        
+        return $fields;
+    } // end getConditionFields
     
     
     
