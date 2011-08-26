@@ -39,7 +39,12 @@ class ObjectPDOAdapter extends ObjectAdapter
             throw new DatabaseException($info[2], $info[1]);
         } 
 
-        $query->execute();
+        $res = $query->execute();
+        if (!$res) {
+            $info = $query->errorInfo();
+            throw new DatabaseException($info[2], $info[1]);
+        }
+        
         $result = $query->fetchAll();
         
         return $result;
