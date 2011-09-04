@@ -41,14 +41,14 @@ abstract class Object implements IObject
         } // end switch
         
         if (!$libName) {
-            throw new SystemException(_('Object Adapter not found'));
+            throw new DatabaseException(_('Object Adapter not found'));
         }
         
         $className = 'Object'.$libName.'Adapter';
         $path = dirname(__FILE__).'/'.$className.'.php'; 
         
         if(!include_once($path)) {
-            throw new SystemException(_('Object Adapter not installed'));
+            throw new DatabaseException(_('Object Adapter not installed'));
         }
         
         $instance = new $className($db);
@@ -93,12 +93,12 @@ abstract class Object implements IObject
         $classFile = $path.$className.'.php';
                           
         if ( !file_exists($classFile) ) {
-            throw new SystemException(sprintf(_('File "%s" for object "%s" was not found.'), $classFile, $name));
+            throw new DatabaseException(sprintf(_('File "%s" for object "%s" was not found.'), $classFile, $name));
         }
             
         require_once $classFile;
         if ( !class_exists($className) ) {
-            throw new SystemException(sprintf(_('Class "%s" was not found in file "%s".'), $className, $classFile));
+            throw new DatabaseException(sprintf(_('Class "%s" was not found in file "%s".'), $className, $classFile));
         }
         
         self::$_instances[$name] = new $className($adapter);
@@ -228,11 +228,11 @@ abstract class Object implements IObject
     /**
      * Returns sql query without where. The method should be overridden
      * 
-     * @throws SystemException
+     * @throws DatabaseException
      */
     protected function getSql()
     {
-        throw new SystemException('Undefined method getSql', 2001);
+        throw new DatabaseException('Undefined method getSql', 2001);
     } // end getSql
     
     /**
@@ -261,7 +261,7 @@ abstract class Object implements IObject
      * @param string $selectSql
      * @param array $condition
      * @param string $type
-     * @throws SystemException
+     * @throws DatabaseException
      * @return array
      */
     public function select($selectSql, $condition = array(), $orderBy = array(), $type = self::FETCH_ALL)
@@ -277,11 +277,11 @@ abstract class Object implements IObject
         );
         
         if ( !isset($methods[$type]) ) {
-            throw new SystemException( sprintf(_('Undefined select type %s'), $type), 3005);
+            throw new DatabaseException( sprintf(_('Undefined select type %s'), $type), 3005);
         }
         
         if ( !is_callable(array($this, $methods[$type])) ) {
-            throw new SystemException(sprintf(_('Method "%s" was not found in Object.'), $methods[$type]));
+            throw new DatabaseException(sprintf(_('Method "%s" was not found in Object.'), $methods[$type]));
         }
             
         return call_user_func_array(array($this, $methods[$type]), array($sql));
