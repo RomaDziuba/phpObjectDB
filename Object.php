@@ -2,6 +2,7 @@
 
 require_once dirname(__FILE__).'/DatabaseException.php';
 require_once dirname(__FILE__).'/IObject.php';
+require_once dirname(__FILE__).'/ObjectAdapter.php';
 
 abstract class Object implements IObject
 {
