@@ -1,4 +1,4 @@
-<?
+<?php
 interface IObject
 {
     public function quote($obj, $type);
