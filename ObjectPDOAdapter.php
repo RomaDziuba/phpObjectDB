@@ -28,7 +28,7 @@ class ObjectPDOAdapter extends ObjectAdapter
             throw new DatabaseException($info[2], $info[1]);
         }
 
-        return $query->fetch();
+        return $query->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getAll($sql)
@@ -47,7 +47,7 @@ class ObjectPDOAdapter extends ObjectAdapter
             throw new DatabaseException($info[2], $info[1]);
         }
 
-        $result = $query->fetchAll();
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
 
         return $result;
     }
