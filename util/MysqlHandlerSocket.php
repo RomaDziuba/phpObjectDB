@@ -47,6 +47,10 @@ class MysqlHandlerSocket
 
 		$rows = $this->connection->executeSingle(1, '=', $indexValue, 1, 0);
 
+		if ($rows === false) {
+			throw new DatabaseException($this->connection->getError());
+		}
+
 		if (!$rows) {
 			return array();
 		}
@@ -62,7 +66,7 @@ class MysqlHandlerSocket
 		return $result;
 	} // end get
 
-	public function getLimit($table, $columns, $indexKey, $indexValue, $op = '>', $limit = 1)
+	public function getLimit($table, $columns, $indexKey, $indexValue, $op = '>', $limit = 1, $offset = 0)
 	{
 		if (is_scalar($indexValue)) {
 			$indexValue = array($indexValue);
@@ -75,7 +79,11 @@ class MysqlHandlerSocket
 			throw new DatabaseException($this->connection->getError());
 		}
 
-		$rows = $this->connection->executeSingle(1, $op, $indexValue, $limit, 0);
+		$rows = $this->connection->executeSingle(1, $op, $indexValue, $limit, $offset);
+
+		if ($rows === false) {
+			throw new DatabaseException($this->connection->getError());
+		}
 
 		if (!$rows) {
 			return array();
@@ -83,9 +91,11 @@ class MysqlHandlerSocket
 
 		$result = array();
 
-		foreach($rows as $rowIndex => $row) {
-			foreach ($row as $index => $value) {
-				$result[$rowIndex][$columns[$index]] = $value;
+		if (is_array($rows)) {
+			foreach($rows as $rowIndex => $row) {
+				foreach ($row as $index => $value) {
+					$result[$rowIndex][$columns[$index]] = $value;
+				}
 			}
 		}
 
@@ -114,10 +124,19 @@ class MysqlHandlerSocket
 
 	public function remove($table, $indexKey, $value)
 	{
-		$res = $this->connection->openIndex(1, $this->name, $table, $indexKey, array());
+		$connection = new HandlerSocket($this->host, $this->writePort);
 
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, array());
 
-		$ret = $this->connection->executeDelete(1, "=", array($value));
+		if ($res === false) {
+			throw new DatabaseException($connection->getError());
+		}
+
+		$ret = $connection->executeDelete(1, "=", array($value));
+
+		if ($ret === false) {
+			throw new DatabaseException($connection->getError());
+		}
 
 		return $ret;
 	}
