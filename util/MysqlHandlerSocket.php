@@ -14,33 +14,38 @@ class MysqlHandlerSocket
 	public $readPort;
 	public $writePort;
 
+	protected $connection;
+
+	protected $index = 1;
+
 	public function __construct($host, $name, $readPort = false, $writePort = false)
 	{
 		$this->host = $host;
 		$this->name = $name;
 		$this->readPort = $readPort ? $readPort : 9998;
 		$this->writePort = $writePort ? $writePort : 9999;
+
+		try {
+			$this->connection = new HandlerSocket($this->host, $this->readPort);
+		} catch(Exception $exp) {
+			throw new DatabaseException($exp->getMessage(), $exp->getCode());
+		}
 	}
 
 	public function get($table, $columns, $indexKey, $indexValue)
 	{
-		$hs = new HandlerSocket($this->host, $this->readPort);
-
 		if (is_scalar($indexValue)) {
 			$indexValue = array($indexValue);
 		}
 
 		$select = join(',', $columns);
-
-		$res = $hs->openIndex(1, $this->name, $table, $indexKey, $select);
+		$res = $this->connection->openIndex(1, $this->name, $table, $indexKey, $select);
 
 		if (!$res) {
-			throw new DatabaseException($hs->getError());
+			throw new DatabaseException($this->connection->getError());
 		}
 
-		$rows = $hs->executeSingle(1, '=', $indexValue, 1, 0);
-
-		unset($hs);
+		$rows = $this->connection->executeSingle(1, '=', $indexValue, 1, 0);
 
 		if (!$rows) {
 			return array();
@@ -57,48 +62,81 @@ class MysqlHandlerSocket
 		return $result;
 	} // end get
 
-	public function insert($table, $values, $indexKey)
+	public function getLimit($table, $columns, $indexKey, $indexValue, $op = '>', $limit = 1)
 	{
-		$hs = new HandlerSocket($this->host, $this->writePort);
-
-		$res = $hs->openIndex(1, $this->name, $table, $indexKey, join(',', array_keys($values)));
-
-		if (!$res) {
-			throw new DatabaseException($hs->getError());
+		if (is_scalar($indexValue)) {
+			$indexValue = array($indexValue);
 		}
 
-		$ret = $hs->executeInsert(1, array_values($values));
+		$select = join(',', $columns);
+		$res = $this->connection->openIndex(1, $this->name, $table, $indexKey, $select);
+
+		if (!$res) {
+			throw new DatabaseException($this->connection->getError());
+		}
+
+		$rows = $this->connection->executeSingle(1, $op, $indexValue, $limit, 0);
+
+		if (!$rows) {
+			return array();
+		}
+
+		$result = array();
+
+		foreach($rows as $rowIndex => $row) {
+			foreach ($row as $index => $value) {
+				$result[$rowIndex][$columns[$index]] = $value;
+			}
+		}
+
+		return $result;
+	} // end get
+
+
+	public function insert($table, $values, $indexKey)
+	{
+		$connection = new HandlerSocket($this->host, $this->writePort);
+
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, join(',', array_keys($values)));
+
+		if (!$res) {
+			throw new DatabaseException($connection->getError());
+		}
+
+		$ret = $connection->executeInsert(1, array_values($values));
+
+		if (!$ret) {
+			throw new DatabaseException($connection->getError());
+		}
 
 		return $ret;
 	} // end insert
 
 	public function remove($table, $indexKey, $value)
 	{
-		$hs = new HandlerSocket($this->host, $this->writePort);
-
-		$res = $hs->openIndex(1, $this->name, $table, $indexKey, array());
+		$res = $this->connection->openIndex(1, $this->name, $table, $indexKey, array());
 
 
-
-		$ret = $hs->executeDelete(1, "=", array($value));
+		$ret = $this->connection->executeDelete(1, "=", array($value));
 
 		return $ret;
 	}
 
 	public function update($table, $values, $indexKey, $value)
 	{
-		$hs = new HandlerSocket($this->host, $this->writePort);
-
-		$res = $hs->openIndex(1, $this->name, $table, $indexKey, join(',', array_keys($values)));
+		$connection = new HandlerSocket($this->host, $this->writePort);
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, join(',', array_keys($values)));
 
 		if (!$res) {
-			throw new DatabaseException($hs->getError());
+			echo $connection->getError();
+			die("1");
+			throw new DatabaseException($connection->getError());
 		}
 
-		$res = $hs->executeUpdate(1, "=", array($value), array_values($values), 1, 0);
+		$res = $connection->executeUpdate(1, "=", array($value), array_values($values), 1, 0);
 
-		if (!$res) {
-			throw new DatabaseException($hs->getError());
+		if ($res === false) {
+			throw new DatabaseException($connection->getError());
 		}
 
 		return $res;
