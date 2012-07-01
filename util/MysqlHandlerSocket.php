@@ -147,12 +147,14 @@ class MysqlHandlerSocket
 		$res = $connection->openIndex(1, $this->name, $table, $indexKey, join(',', array_keys($values)));
 
 		if (!$res) {
-			echo $connection->getError();
-			die("1");
 			throw new DatabaseException($connection->getError());
 		}
 
-		$res = $connection->executeUpdate(1, "=", array($value), array_values($values), 1, 0);
+		if (is_scalar($value)) {
+		    $value = array($value);
+		}
+
+		$res = $connection->executeUpdate(1, "=", $value, array_values($values), 1, 0);
 
 		if ($res === false) {
 			throw new DatabaseException($connection->getError());
