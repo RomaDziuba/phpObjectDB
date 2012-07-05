@@ -126,14 +126,12 @@ class MysqlHandlerSocket
 	{
 		$connection = new HandlerSocket($this->host, $this->writePort);
 
-		$res = $connection->openIndex(1, $this->name, $table, $indexKey, array());
-
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, '');
 		if ($res === false) {
 			throw new DatabaseException($connection->getError());
 		}
 
 		$ret = $connection->executeDelete(1, "=", array($value));
-
 		if ($ret === false) {
 			throw new DatabaseException($connection->getError());
 		}
