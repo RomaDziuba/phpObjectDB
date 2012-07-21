@@ -139,6 +139,26 @@ class MysqlHandlerSocket
 		return $ret;
 	}
 
+	public function multipleRemove($table, $indexKey, $values)
+	{
+	    $connection = new HandlerSocket($this->host, $this->writePort);
+
+	    $res = $connection->openIndex(1, $this->name, $table, $indexKey, '');
+	    if ($res === false) {
+	        throw new DatabaseException($connection->getError());
+	    }
+
+	    foreach ($values as $value) {
+    	    $ret = $connection->executeDelete(1, "=", array($value));
+    	    if ($ret === false) {
+    	        throw new DatabaseException($connection->getError());
+    	    }
+	    }
+
+	    return $ret;
+	}
+
+
 	public function update($table, $values, $indexKey, $value)
 	{
 		$connection = new HandlerSocket($this->host, $this->writePort);
