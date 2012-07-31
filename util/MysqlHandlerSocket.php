@@ -184,19 +184,19 @@ class MysqlHandlerSocket
 	public function replace($table, $values, $indexKey, $value)
 	{
 		$columns = array_keys($values);
-		$result = $this->get($table, array($columns[0]), $indexKey, $value);
+		$result = $this->get($table, $columns, $indexKey, $value);
 
 		if (empty($result)) {
-			$return = $this->insert($table, $values, $indexKey);
+			$result = $this->insert($table, $values, $indexKey);
 		} else {
 			if (isset($values[$indexKey])) {
 				unset($values[$indexKey]);
 			}
 			
-			$return = $this->update($table, $values, $indexKey, $value);
+			$this->update($table, $values, $indexKey, $value);
 		}
 		
-		return $return;
+		return $result;
 	} // end replace
 
 
