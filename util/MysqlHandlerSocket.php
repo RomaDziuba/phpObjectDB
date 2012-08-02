@@ -115,7 +115,7 @@ class MysqlHandlerSocket
 
 		$ret = $connection->executeInsert(1, array_values($values));
 
-		if (!$ret) {
+		if ($ret === false) {
 			throw new DatabaseException($connection->getError());
 		}
 
