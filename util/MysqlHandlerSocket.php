@@ -122,7 +122,7 @@ class MysqlHandlerSocket
 		return $ret;
 	} // end insert
 
-	public function remove($table, $indexKey, $value)
+	public function remove($table, $indexKey, $value, $limit = 1)
 	{
 		$connection = new HandlerSocket($this->host, $this->writePort);
 
@@ -131,7 +131,7 @@ class MysqlHandlerSocket
 			throw new DatabaseException($connection->getError());
 		}
 
-		$ret = $connection->executeDelete(1, "=", array($value));
+		$ret = $connection->executeDelete(1, "=", array($value), $limit);
 		if ($ret === false) {
 			throw new DatabaseException($connection->getError());
 		}
@@ -192,10 +192,10 @@ class MysqlHandlerSocket
 			if (isset($values[$indexKey])) {
 				unset($values[$indexKey]);
 			}
-			
+
 			$this->update($table, $values, $indexKey, $value);
 		}
-		
+
 		return $result;
 	} // end replace
 
