@@ -14,7 +14,7 @@ class MysqlHandlerSocket
 	public $readPort;
 	public $writePort;
 
-	protected $connection;
+// 	protected $connection;
 
 	protected $index = 1;
 
@@ -25,30 +25,38 @@ class MysqlHandlerSocket
 		$this->readPort = $readPort ? $readPort : 9998;
 		$this->writePort = $writePort ? $writePort : 9999;
 
+		/*
 		try {
 			$this->connection = new HandlerSocket($this->host, $this->readPort);
 		} catch(Exception $exp) {
 			throw new DatabaseException($exp->getMessage(), $exp->getCode());
 		}
+		*/
 	}
 
 	public function get($table, $columns, $indexKey, $indexValue)
 	{
+	    try {
+	        $connection = new HandlerSocket($this->host, $this->readPort);
+	    } catch(Exception $exp) {
+	        throw new DatabaseException($exp->getMessage(), $exp->getCode());
+	    }
+
 		if (is_scalar($indexValue)) {
 			$indexValue = array($indexValue);
 		}
 
 		$select = join(',', $columns);
-		$res = $this->connection->openIndex(1, $this->name, $table, $indexKey, $select);
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, $select);
 
 		if (!$res) {
-			throw new DatabaseException($this->connection->getError());
+			throw new DatabaseException($connection->getError());
 		}
 
-		$rows = $this->connection->executeSingle(1, '=', $indexValue, 1, 0);
+		$rows = $connection->executeSingle(1, '=', $indexValue, 1, 0);
 
 		if ($rows === false) {
-			throw new DatabaseException($this->connection->getError());
+			throw new DatabaseException($connection->getError());
 		}
 
 		if (!$rows) {
@@ -68,21 +76,27 @@ class MysqlHandlerSocket
 
 	public function getLimit($table, $columns, $indexKey, $indexValue, $op = '>', $limit = 1, $offset = 0)
 	{
+	    try {
+	        $connection = new HandlerSocket($this->host, $this->readPort);
+	    } catch(Exception $exp) {
+	        throw new DatabaseException($exp->getMessage(), $exp->getCode());
+	    }
+
 		if (is_scalar($indexValue)) {
 			$indexValue = array($indexValue);
 		}
 
 		$select = join(',', $columns);
-		$res = $this->connection->openIndex(1, $this->name, $table, $indexKey, $select);
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, $select);
 
 		if (!$res) {
-			throw new DatabaseException($this->connection->getError());
+			throw new DatabaseException($connection->getError());
 		}
 
-		$rows = $this->connection->executeSingle(1, $op, $indexValue, $limit, $offset);
+		$rows = $connection->executeSingle(1, $op, $indexValue, $limit, $offset);
 
 		if ($rows === false) {
-			throw new DatabaseException($this->connection->getError());
+			throw new DatabaseException($connection->getError());
 		}
 
 		if (!$rows) {
