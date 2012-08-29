@@ -9,12 +9,14 @@
 //FIXME: Change index and connection logic
 class MysqlHandlerSocket
 {
+    const MYSQL_HANDLER_ERROR_ALREDY_EXISTS = 121;
+
 	public $host;
 	public $name;
 	public $readPort;
 	public $writePort;
 
-	protected $connection;
+// 	protected $connection;
 
 	protected $index = 1;
 
@@ -25,30 +27,44 @@ class MysqlHandlerSocket
 		$this->readPort = $readPort ? $readPort : 9998;
 		$this->writePort = $writePort ? $writePort : 9999;
 
+		/*
 		try {
 			$this->connection = new HandlerSocket($this->host, $this->readPort);
 		} catch(Exception $exp) {
 			throw new DatabaseException($exp->getMessage(), $exp->getCode());
 		}
+		*/
+	}
+
+	private function throwException($method, $table, $index, $code = 0)
+	{
+	    $msg = sprintf("Method: %s; table: %s; index: %s; code: %s;", $method, $table, $index, $code);
+	    throw new DatabaseException($msg);
 	}
 
 	public function get($table, $columns, $indexKey, $indexValue)
 	{
+	    try {
+	        $connection = new HandlerSocket($this->host, $this->readPort);
+	    } catch(Exception $exp) {
+	        throw new DatabaseException($exp->getMessage(), $exp->getCode());
+	    }
+
 		if (is_scalar($indexValue)) {
 			$indexValue = array($indexValue);
 		}
 
 		$select = join(',', $columns);
-		$res = $this->connection->openIndex(1, $this->name, $table, $indexKey, $select);
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, $select);
 
 		if (!$res) {
-			throw new DatabaseException($this->connection->getError());
+		    $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
-		$rows = $this->connection->executeSingle(1, '=', $indexValue, 1, 0);
+		$rows = $connection->executeSingle(1, '=', $indexValue, 1, 0);
 
 		if ($rows === false) {
-			throw new DatabaseException($this->connection->getError());
+		    $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
 		if (!$rows) {
@@ -68,21 +84,27 @@ class MysqlHandlerSocket
 
 	public function getLimit($table, $columns, $indexKey, $indexValue, $op = '>', $limit = 1, $offset = 0)
 	{
+	    try {
+	        $connection = new HandlerSocket($this->host, $this->readPort);
+	    } catch(Exception $exp) {
+	        throw new DatabaseException($exp->getMessage(), $exp->getCode());
+	    }
+
 		if (is_scalar($indexValue)) {
 			$indexValue = array($indexValue);
 		}
 
 		$select = join(',', $columns);
-		$res = $this->connection->openIndex(1, $this->name, $table, $indexKey, $select);
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, $select);
 
 		if (!$res) {
-			throw new DatabaseException($this->connection->getError());
+		    $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
-		$rows = $this->connection->executeSingle(1, $op, $indexValue, $limit, $offset);
+		$rows = $connection->executeSingle(1, $op, $indexValue, $limit, $offset);
 
 		if ($rows === false) {
-			throw new DatabaseException($this->connection->getError());
+		    $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
 		if (!$rows) {
@@ -110,30 +132,30 @@ class MysqlHandlerSocket
 		$res = $connection->openIndex(1, $this->name, $table, $indexKey, join(',', array_keys($values)));
 
 		if (!$res) {
-			throw new DatabaseException($connection->getError());
+		    $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
 		$ret = $connection->executeInsert(1, array_values($values));
 
-		if (!$ret) {
-			throw new DatabaseException($connection->getError());
+		if ($ret === false) {
+			$this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
 		return $ret;
 	} // end insert
 
-	public function remove($table, $indexKey, $value)
+	public function remove($table, $indexKey, $value, $limit = 1)
 	{
 		$connection = new HandlerSocket($this->host, $this->writePort);
 
 		$res = $connection->openIndex(1, $this->name, $table, $indexKey, '');
 		if ($res === false) {
-			throw new DatabaseException($connection->getError());
+		    $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
-		$ret = $connection->executeDelete(1, "=", array($value));
+		$ret = $connection->executeDelete(1, "=", array($value), $limit);
 		if ($ret === false) {
-			throw new DatabaseException($connection->getError());
+		    $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
 		return $ret;
@@ -145,13 +167,13 @@ class MysqlHandlerSocket
 
 	    $res = $connection->openIndex(1, $this->name, $table, $indexKey, '');
 	    if ($res === false) {
-	        throw new DatabaseException($connection->getError());
+	        $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 	    }
 
 	    foreach ($values as $value) {
     	    $ret = $connection->executeDelete(1, "=", array($value));
     	    if ($ret === false) {
-    	        throw new DatabaseException($connection->getError());
+    	        $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
     	    }
 	    }
 
@@ -198,7 +220,7 @@ class MysqlHandlerSocket
 		$res = $connection->executeUpdate(1, "=", $value, array_values($values), 1, 0);
 
 		if ($res === false) {
-			throw new DatabaseException($connection->getError());
+		    $this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
 		return $res;
@@ -215,10 +237,10 @@ class MysqlHandlerSocket
 			if (isset($values[$indexKey])) {
 				unset($values[$indexKey]);
 			}
-			
+
 			$this->update($table, $values, $indexKey, $value);
 		}
-		
+
 		return $result;
 	} // end replace
 
