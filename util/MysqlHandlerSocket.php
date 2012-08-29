@@ -190,18 +190,18 @@ class MysqlHandlerSocket
 		$res = $connection->openIndex(1, $this->name, $table, $indexKey, join(',', $fields));
 
 		if (!$res) {
-			throw new DatabaseException($connection->getError());
+			$this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 		}
 
 		foreach ($values as $value) {
 			$ret = $connection->executeInsert(1, array_values($values));
 			if ($ret === false) {
-				throw new DatabaseException($connection->getError());
+				$this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 			}
 		}
 
 		return $ret;
-	} // end insert
+	} // end multipleInsert
 	
 
 	public function update($table, $values, $indexKey, $value)
@@ -243,8 +243,6 @@ class MysqlHandlerSocket
 
 		return $result;
 	} // end replace
-
-
 }
 
 ?>
