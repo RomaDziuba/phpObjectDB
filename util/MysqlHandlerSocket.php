@@ -158,6 +158,29 @@ class MysqlHandlerSocket
 	    return $ret;
 	}
 
+	public function multipleInsert($table, $values, $indexKey)
+	{
+		$connection = new HandlerSocket($this->host, $this->writePort);
+		
+		list(, $fields) = each($values);
+		$fields = array_keys($fields);
+
+		$res = $connection->openIndex(1, $this->name, $table, $indexKey, join(',', $fields));
+
+		if (!$res) {
+			throw new DatabaseException($connection->getError());
+		}
+
+		foreach ($values as $value) {
+			$ret = $connection->executeInsert(1, array_values($values));
+			if ($ret === false) {
+				throw new DatabaseException($connection->getError());
+			}
+		}
+
+		return $ret;
+	} // end insert
+	
 
 	public function update($table, $values, $indexKey, $value)
 	{
