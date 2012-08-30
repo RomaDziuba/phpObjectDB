@@ -194,13 +194,13 @@ class MysqlHandlerSocket
 		}
 
 		foreach ($values as $value) {
-			$ret = $connection->executeInsert(1, array_values($values));
+			$ret = $connection->executeInsert(1, array_values($value));
 			if ($ret === false) {
 				$this->throwException(__METHOD__, $table, $indexKey, $connection->getError());
 			}
 		}
 
-		return $ret;
+		return true;
 	} // end multipleInsert
 	
 
